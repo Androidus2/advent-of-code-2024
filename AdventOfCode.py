@@ -67,11 +67,110 @@ class AdventOfCode:
         
         return sum
 
+    @staticmethod
+    def __d2p1(fileName):
+        """
+        Read the file and return the result to the first part of the second day's problem
+        """
+
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            lines = content.split("\n")
+
+            for line in lines:
+                nums = [int(a) for a in line.split()]
+                
+                if len(nums) == 0:
+                    continue
+                    
+                elif len(nums) == 1:
+                    cnt += 1
+                    continue
+                    
+                prev = nums[0]
+                increasing = True
+                ok = True
+
+                if nums[0] > nums[1]:
+                    increasing = False
+
+                for i in range(1, len(nums)):
+                    if abs(nums[i] - prev) < 1 or abs(nums[i] - prev) > 3:
+                        ok = False
+                    
+                    if (nums[i] > prev) != increasing:
+                        ok = False
+                    
+                    prev = nums[i]
+                
+                if ok:
+                    cnt += 1
+        
+        return cnt
+
+    @staticmethod
+    def __d2p2(fileName):
+        """
+        Read the file and return the result to the second part of the second day's problem
+        """
+        cnt = 0
+
+        def isValid(numbers):
+            if len(numbers) < 2:
+                return True
+            
+            prev = numbers[0]
+            increasing = True
+            ok = True
+
+            if numbers[0] > numbers[1]:
+                increasing = False
+            
+            for i in range(1, len(numbers)):
+                if abs(numbers[i] - prev) < 1 or abs(numbers[i] - prev) > 3:
+                    ok = False
+                
+                if (numbers[i] > prev) != increasing:
+                    ok = False
+
+                prev = numbers[i]
+            return ok
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            lines = content.split('\n')
+
+            for line in lines:
+                nums = [int(a) for a in line.split()]
+
+                ok = isValid(nums)
+
+                for i in range(len(nums)):
+                    newNums = []
+                    for j in range(len(nums)):
+                        if i != j:
+                            newNums.append(nums[j])
+                    ok = ok or isValid(newNums)
+                if ok:
+                    cnt += 1
+        
+        return cnt
+                
+                
+
     # Table of functions for each day and part
     __table = {
         1: {
             1: __d1p1,
             2: __d1p2
+        },
+        2: {
+            1: __d2p1,
+            2: __d2p2
         }
     }
 
@@ -86,4 +185,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(1, 1, "input.txt")
+AdventOfCode.Solve(2, 2, "Inputs/Day2/p2.txt")
