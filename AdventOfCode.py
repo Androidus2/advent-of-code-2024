@@ -159,8 +159,102 @@ class AdventOfCode:
                     cnt += 1
         
         return cnt
+    
+    @staticmethod
+    def __d3p1(fileName):
+        """
+        Read the file and return the result to the first part of the third day's problem
+        """
+        sum = 0
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            lines = content.split('\n')
+
+            for line in lines:
+                start = 0
                 
+                while True:
+                    ind = line.find('mul(', start)
+                    if ind == -1:
+                        break
+
+                    comma = line.find(',', ind)
+                    if comma == -1:
+                        break
+
+                    end = line.find(')', comma)
+                    if end == -1:
+                        break
+
+                    start = ind + 1
+
+                    aStr = line[ind + 4:comma]
+                    bStr = line[comma + 1:end]
+
+                    if aStr.isdigit() and bStr.isdigit():
+                        a = int(line[ind + 4:comma])
+                        b = int(line[comma + 1:end])
+
+                        sum += a * b
+        
+        return sum
+
+    @staticmethod
+    def __d3p2(fileName):
+        """
+        Read the file and return the result to the second part of the third day's problem
+        """
+        sum = 0
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            lines = content.split('\n')
+
+            shouldDo = True
+
+            for line in lines:
+                start = 0
                 
+                while True:
+                    ind = line.find('mul(', start)
+                    if ind == -1:
+                        break
+
+                    
+                    lastDoIndex = line.find('do()', start, ind)
+                    while lastDoIndex != -1 and line.find('do()', lastDoIndex + 4, ind) != -1:
+                        lastDoIndex = line.find('do()', lastDoIndex + 4, ind)
+                    lastDontIndex = line.find('don\'t()', start, ind)
+                    while lastDontIndex != -1 and line.find('don\'t()', lastDontIndex + 7, ind) != -1:
+                        lastDontIndex = line.find('don\'t()', lastDontIndex + 7, ind)
+                    
+                    if lastDoIndex > lastDontIndex:
+                        shouldDo = True
+                    elif lastDoIndex < lastDontIndex:
+                        shouldDo = False
+
+
+                    comma = line.find(',', ind)
+                    if comma == -1:
+                        break
+
+                    end = line.find(')', comma)
+                    if end == -1:
+                        break
+
+                    start = ind + 1
+
+                    aStr = line[ind + 4:comma]
+                    bStr = line[comma + 1:end]
+
+                    if aStr.isdigit() and bStr.isdigit() and shouldDo:
+                        a = int(line[ind + 4:comma])
+                        b = int(line[comma + 1:end])
+
+                        sum += a * b
+        
+        return sum
 
     # Table of functions for each day and part
     __table = {
@@ -171,6 +265,10 @@ class AdventOfCode:
         2: {
             1: __d2p1,
             2: __d2p2
+        },
+        3: {
+            1: __d3p1,
+            2: __d3p2
         }
     }
 
@@ -185,4 +283,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(2, 2, "Inputs/Day2/p2.txt")
+AdventOfCode.Solve(3, 2, "Inputs/Day3/example.txt")
