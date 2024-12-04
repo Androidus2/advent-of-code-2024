@@ -256,6 +256,75 @@ class AdventOfCode:
         
         return sum
 
+    @staticmethod
+    def __d4p1(fileName):
+        """
+        Read the file and return the result to the first part of the fourth day's problem
+        """
+
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+            lines = content.split('\n')
+
+            # search for horizontal
+            for line in lines:
+                ind = 0
+                while line.find('XMAS', ind) != -1:
+                    cnt += 1
+                    ind = line.find('XMAS', ind) + 1
+                
+                ind = 0
+                while line.find('SAMX', ind) != -1:
+                    cnt += 1
+                    ind = line.find('SAMX', ind) + 1
+
+            # search for vertical
+            for i in range(len(lines) - 3):
+                for j in range(len(lines[i])):
+                    if lines[i][j] == 'X' and lines[i + 1][j] == 'M' and lines[i + 2][j] == 'A' and lines[i + 3][j] == 'S':
+                        cnt += 1
+                    if lines[i][j] == 'S' and lines[i + 1][j] == 'A' and lines[i + 2][j] == 'M' and lines[i + 3][j] == 'X':
+                        cnt += 1
+
+            # search for first diagonal
+            for i in range(len(lines) - 3):
+                for j in range(len(lines[i]) - 3):
+                    if lines[i][j] == 'X' and lines[i + 1][j + 1] == 'M' and lines[i + 2][j + 2] == 'A' and lines[i + 3][j + 3] == 'S':
+                        cnt += 1
+                    if lines[i][j] == 'S' and lines[i + 1][j + 1] == 'A' and lines[i + 2][j + 2] == 'M' and lines[i + 3][j + 3] == 'X':
+                        cnt += 1
+            
+            # search for second diagonal
+            for i in range(len(lines) - 3):
+                for j in range(3, len(lines[i])):
+                    if lines[i][j] == 'X' and lines[i + 1][j - 1] == 'M' and lines[i + 2][j - 2] == 'A' and lines[i + 3][j - 3] == 'S':
+                        cnt += 1
+                    if lines[i][j] == 'S' and lines[i + 1][j - 1] == 'A' and lines[i + 2][j - 2] == 'M' and lines[i + 3][j - 3] == 'X':
+                        cnt += 1
+            
+        return cnt
+
+    @staticmethod
+    def __d4p2(fileName):
+        """
+        Read the file and return the result to the second part of the fourth day's problem
+        """
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+            lines = content.split('\n')
+
+            for i in range(len(lines) - 2):
+                for j in range(len(lines[i]) - 2):
+                    if (lines[i + 1][j + 1] == 'A' and ( (lines[i][j] == 'M' and lines[i + 2][j + 2] == 'S') or (lines[i][j] == 'S' and lines[i + 2][j + 2] == 'M'))) and \
+                        ((lines[i + 2][j] == 'M' and lines[i][j + 2] == 'S') or (lines[i + 2][j] == 'S' and lines[i][j + 2] == 'M')):
+                        cnt += 1
+        
+        return cnt
+
     # Table of functions for each day and part
     __table = {
         1: {
@@ -269,6 +338,10 @@ class AdventOfCode:
         3: {
             1: __d3p1,
             2: __d3p2
+        },
+        4: {
+            1: __d4p1,
+            2: __d4p2
         }
     }
 
@@ -283,4 +356,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(3, 2, "Inputs/Day3/example.txt")
+AdventOfCode.Solve(4, 2, "Inputs/Day4/p4.txt")
