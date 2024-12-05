@@ -325,6 +325,94 @@ class AdventOfCode:
         
         return cnt
 
+    @staticmethod
+    def __d5p1(fileName):
+        """
+        Read the file and return the result to the first part of the fifth day's problem
+        """
+
+        req = {}
+        suma = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+            lines = content.split('\n')
+            inReqs = True
+
+            for line in lines:
+                if line == '':
+                    inReqs = False
+                    continue
+
+                if inReqs:
+                    reqs = line.split('|')
+                    if not reqs[1] in req:
+                        req[reqs[1]] = {}
+                    req[reqs[1]][reqs[0]] = True
+                else:
+                    nums = line.split(',')
+
+                    ok = True
+
+                    for i in range(len(nums)):
+                        for j in range(i):
+                            if nums[j] in req and nums[i] in req[nums[j]]:
+                                ok = False
+                    
+                    if ok:
+                        suma += int(nums[len(nums) // 2])
+        
+        return suma
+
+
+    @staticmethod
+    def __d5p2(fileName):
+        """
+        Read the file and return the result to the second part of the fifth day's problem
+        """
+
+        req = {}
+        suma = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+            lines = content.split('\n')
+            inReqs = True
+
+            for line in lines:
+                if line == '':
+                    inReqs = False
+                    continue
+
+                if inReqs:
+                    reqs = line.split('|')
+                    if not reqs[1] in req:
+                        req[reqs[1]] = {}
+                    req[reqs[1]][reqs[0]] = True
+                else:
+                    nums = line.split(',')
+
+                    ok = True
+                    isSorted = True
+
+                    while True:
+                        isSorted = True
+                        for i in range(len(nums)):
+                            for j in range(i):
+                                if nums[j] in req and nums[i] in req[nums[j]]:
+                                    ok = False
+                                    nums[i], nums[j] = nums[j], nums[i]
+                                    isSorted = False
+                        
+                        if isSorted:
+                            break
+
+                    if not ok:
+                        suma += int(nums[len(nums) // 2])
+        
+        return suma
+
+
     # Table of functions for each day and part
     __table = {
         1: {
@@ -342,6 +430,10 @@ class AdventOfCode:
         4: {
             1: __d4p1,
             2: __d4p2
+        },
+        5: {
+            1: __d5p1,
+            2: __d5p2
         }
     }
 
@@ -356,4 +448,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(4, 2, "Inputs/Day4/p4.txt")
+AdventOfCode.Solve(5, 2, "Inputs/Day5/p5.txt")
