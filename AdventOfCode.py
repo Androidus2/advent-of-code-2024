@@ -413,6 +413,307 @@ class AdventOfCode:
         return suma
 
 
+    @staticmethod
+    def __d6p1(fileName):
+        """
+        Read the file and return the result to the first part of the sixth day's problem
+        """
+
+        import sys
+
+        sys.setrecursionlimit(10000)
+
+
+        def rec(guard, mat, n, m):
+            if guard[0] < 0 or guard[0] >= n or guard[1] < 0 or guard[1] >= m:
+                return
+
+            if mat[guard[0]][guard[1]] == '#':
+                if guard[2] == 0:
+                    guard[0] += 1
+                elif guard[2] == 1:
+                    guard[1] -= 1
+                elif guard[2] == 2:
+                    guard[0] -= 1
+                else:
+                    guard[1] += 1
+                guard[2] = (guard[2] + 1) % 4
+            else:
+                mat[guard[0]][guard[1]] = 'X'
+
+            if guard[2] == 0:
+                guard[0] -= 1
+            elif guard[2] == 1:
+                guard[1] += 1
+            elif guard[2] == 2:
+                guard[0] += 1
+            else:
+                guard[1] -= 1
+
+            rec(guard, mat, n, m)
+
+
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+            lines = content.split('\n')
+            mat = []
+
+            for line in lines:
+                mat.append(list(line))
+
+            guard = [0, 0, 0]
+            n = len(mat)
+            m = len(mat[0])
+
+            for i in range(n):
+                for j in range(m):
+                    if mat[i][j] != '.' and mat[i][j] != '#':
+                        guard[0] = i
+                        guard[1] = j
+                        if mat[i][j] == '^':
+                            guard[2] = 0
+                        elif mat[i][j] == '>':
+                            guard[2] = 1
+                        elif mat[i][j] == 'v':
+                            guard[2] = 2
+                        else:
+                            guard[2] = 3
+            
+            rec(guard, mat, n, m)
+
+            #print(mat)
+
+            for i in range(n):
+                for j in range(m):
+                    if mat[i][j] == 'X':
+                        cnt += 1
+        
+        return cnt
+    
+
+
+    @staticmethod
+    def __d6p2(fileName):
+        """
+        Read the file and return the result to the second part of the sixth day's problem
+        """
+
+        import sys
+
+        sys.setrecursionlimit(10000)
+
+
+        def isLoop(guard, mat, n, m, viz):
+            if guard[0] < 0 or guard[0] >= n or guard[1] < 0 or guard[1] >= m:
+                return False
+
+            if (guard[0], guard[1], guard[2]) in viz:
+                return True
+            
+            viz.add((guard[0], guard[1], guard[2]))
+
+            if mat[guard[0]][guard[1]] == '#':
+                if guard[2] == 0:
+                    guard[0] += 1
+                elif guard[2] == 1:
+                    guard[1] -= 1
+                elif guard[2] == 2:
+                    guard[0] -= 1
+                else:
+                    guard[1] += 1
+                guard[2] = (guard[2] + 1) % 4
+            else:
+                mat[guard[0]][guard[1]] = 'X'
+
+            if guard[2] == 0:
+                guard[0] -= 1
+            elif guard[2] == 1:
+                guard[1] += 1
+            elif guard[2] == 2:
+                guard[0] += 1
+            else:
+                guard[1] -= 1
+
+            return isLoop(guard, mat, n, m, viz)
+
+
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+            lines = content.split('\n')
+            mat = []
+
+            for line in lines:
+                mat.append(list(line))
+
+            guard = [0, 0, 0]
+            n = len(mat)
+            m = len(mat[0])
+
+            for i in range(n):
+                for j in range(m):
+                    if mat[i][j] != '.' and mat[i][j] != '#':
+                        guard[0] = i
+                        guard[1] = j
+                        if mat[i][j] == '^':
+                            guard[2] = 0
+                        elif mat[i][j] == '>':
+                            guard[2] = 1
+                        elif mat[i][j] == 'v':
+                            guard[2] = 2
+                        else:
+                            guard[2] = 3
+
+            #print(mat)
+            print(n, m)
+            
+            for i in range(n):
+                for j in range(m):
+                    if mat[i][j] == '.':
+                        cMat = [x[:] for x in mat]
+                        cGuard = guard[:]
+                        
+                        cMat[i][j] = '#'
+
+                        viz = set()
+                        if isLoop(cGuard, cMat, n, m, viz):
+                            cnt += 1
+        
+        return cnt
+            
+
+
+    @staticmethod
+    def __d7p1(fileName):
+        """
+        Read the file and return the result to the first part of the seventh day's problem
+        """
+
+
+        def eval(nums, ops):
+            if len(nums) == 0:
+                return 0
+            ret = nums[0]
+
+            for i in range(len(ops)):
+                if ops[i] == '+':
+                    ret += nums[i + 1]
+                else:
+                    ret *= nums[i + 1]
+            
+            return ret
+
+
+        def backt(nums, ops, ind, target):
+            if ind == len(ops):
+                rez = eval(nums, ops)
+                if rez == target:
+                    return True
+                return False
+            
+            ret = False
+
+            ops[ind] = '+'
+            ret = ret or backt(nums, ops, ind + 1, target)
+            ops[ind] = '*'
+            ret = ret or backt(nums, ops, ind + 1, target)
+
+            return ret
+
+
+        sum = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+            lines = content.split('\n')
+
+            for line in lines:
+                spl = line.split(':')
+                target = int(spl[0])
+
+                nums = [int(x) for x in spl[1].split() if x.isdigit()]
+                ops = [''] * (len(nums) - 1)
+
+                if backt(nums, ops, 0, target):
+                    sum += target
+        
+        return sum
+    
+
+
+
+    @staticmethod
+    def __d7p2(fileName):
+        """
+        Read the file and return the result to the second part of the seventh day's problem
+        """
+
+
+        def eval(nums, ops):
+            if len(nums) == 0:
+                return 0
+            ret = nums[0]
+
+            for i in range(len(ops)):
+                if ops[i] == '+':
+                    ret += nums[i + 1]
+                elif ops[i] == '*':
+                    ret *= nums[i + 1]
+                else:
+                    noDigits = 0
+                    cn = nums[i + 1]
+                    while cn > 0:
+                        noDigits += 1
+                        cn //= 10
+                    
+                    ret = ret * (10 ** noDigits) + nums[i + 1]
+            
+            return ret
+
+
+        def backt(nums, ops, ind, target):
+            if ind == len(ops):
+                rez = eval(nums, ops)
+                if rez == target:
+                    return True
+                return False
+            
+            ret = False
+
+            ops[ind] = '+'
+            ret = ret or backt(nums, ops, ind + 1, target)
+            ops[ind] = '*'
+            ret = ret or backt(nums, ops, ind + 1, target)
+            ops[ind] = '||'
+            ret = ret or backt(nums, ops, ind + 1, target)
+
+            return ret
+
+
+        sum = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+            lines = content.split('\n')
+
+            for line in lines:
+                spl = line.split(':')
+                target = int(spl[0])
+
+                nums = [int(x) for x in spl[1].split() if x.isdigit()]
+                ops = [''] * (len(nums) - 1)
+
+                if backt(nums, ops, 0, target):
+                    sum += target
+        
+        return sum
+
+
+
+
     # Table of functions for each day and part
     __table = {
         1: {
@@ -434,6 +735,14 @@ class AdventOfCode:
         5: {
             1: __d5p1,
             2: __d5p2
+        },
+        6: {
+            1: __d6p1,
+            2: __d6p2
+        },
+        7: {
+            1: __d7p1,
+            2: __d7p2
         }
     }
 
@@ -448,4 +757,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(5, 2, "Inputs/Day5/p5.txt")
+AdventOfCode.Solve(7, 2, "Inputs/Day7/p7.txt")
