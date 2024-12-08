@@ -644,7 +644,6 @@ class AdventOfCode:
     
 
 
-
     @staticmethod
     def __d7p2(fileName):
         """
@@ -713,6 +712,132 @@ class AdventOfCode:
 
 
 
+    @staticmethod
+    def __d8p1(fileName):
+        """
+        Read the file and return the result to the first part of the eighth day's problem
+        """
+
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+            lines = content.split('\n')
+
+            dic = {}
+            antinodes = set()
+
+            print(len(lines), len(lines[0]))
+
+            for i in range(len(lines)):
+                for j in range(len(lines[i])):
+                    if lines[i][j] != '.':
+                        if not lines[i][j] in dic:
+                            dic[lines[i][j]] = []
+                        dic[lines[i][j]].append((i, j))
+            
+            for key in dic.keys():
+                for i in range(len(dic[key])):
+                    for j in range(i + 1, len(dic[key])):
+                        pos1 = dic[key][i]
+                        pos2 = dic[key][j]
+
+                        if pos1[1] <= pos2[1]:
+                            newPos1 = (pos1[0] - abs(pos1[0] - pos2[0]), pos1[1] - abs(pos1[1] - pos2[1]))
+                            newPos2 = (pos2[0] + abs(pos1[0] - pos2[0]), pos2[1] + abs(pos1[1] - pos2[1]))
+                        else:
+                            newPos1 = (pos1[0] - abs(pos1[0] - pos2[0]), pos1[1] + abs(pos1[1] - pos2[1]))
+                            newPos2 = (pos2[0] + abs(pos1[0] - pos2[0]), pos2[1] - abs(pos1[1] - pos2[1]))
+
+                        if newPos1[0] >= 0 and newPos1[0] < len(lines) and newPos1[1] >= 0 and newPos1[1] < len(lines[0]) and newPos1 not in antinodes:
+                            antinodes.add(newPos1)
+                        if newPos2[0] >= 0 and newPos2[0] < len(lines) and newPos2[1] >= 0 and newPos2[1] < len(lines[0]) and newPos2 not in antinodes:
+                            antinodes.add(newPos2)
+            
+            cnt = len(antinodes)
+
+        
+        return cnt
+
+
+
+    @staticmethod
+    def __d8p2(fileName):
+        """
+        Read the file and return the result to the second part of the eighth day's problem
+        """
+
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+            lines = content.split('\n')
+
+            dic = {}
+            antinodes = set()
+            verticals = set()
+
+            #print(len(lines), len(lines[0]))
+
+            for i in range(len(lines)):
+                for j in range(len(lines[i])):
+                    if lines[i][j] != '.':
+                        if not lines[i][j] in dic:
+                            dic[lines[i][j]] = []
+                        dic[lines[i][j]].append((i, j))
+            
+            for key in dic.keys():
+                for i in range(len(dic[key])):
+                    for j in range(i + 1, len(dic[key])):
+                        pos1 = dic[key][i]
+                        pos2 = dic[key][j]
+                        
+                        if pos1[1] == pos2[1]:
+                            #print(pos1, pos2)
+                            verticals.add((pos1[0]))
+                        else:
+                            a = (pos2[0] - pos1[0]) / (pos2[1] - pos1[1])
+                            b = pos1[0] - a * pos1[1]
+                            antinodes.add((a, b))
+
+
+            
+            mat = []
+            for line in lines:
+                mat.append(list(line))
+                
+            for i in range(len(mat)):
+                pr = ''
+                for j in range(len(mat[i])):
+                    
+                    ok = False
+
+                    for f in antinodes:
+                        a = f[0]
+                        b = f[1]
+                        if abs(a * j + b - i) < 1e-9:
+                            ok = True
+                            cnt += 1
+
+                            if mat[i][j] == '.':
+                                mat[i][j] = '#'
+
+                            break
+                    
+                    if j in verticals and not ok:
+                        cnt += 1
+
+                        if mat[i][j] == '.':
+                            mat[i][j] = '#'
+
+                    pr += mat[i][j]
+                #print(pr)
+
+        
+        return cnt
+
+
+
 
     # Table of functions for each day and part
     __table = {
@@ -743,6 +868,10 @@ class AdventOfCode:
         7: {
             1: __d7p1,
             2: __d7p2
+        },
+        8: {
+            1: __d8p1,
+            2: __d8p2
         }
     }
 
@@ -757,4 +886,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(7, 2, "Inputs/Day7/p7.txt")
+AdventOfCode.Solve(8, 2, "Inputs/Day8/p8.txt")
