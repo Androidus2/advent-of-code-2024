@@ -838,6 +838,93 @@ class AdventOfCode:
 
 
 
+    @staticmethod
+    def __d9p1(fileName):
+        """
+        Read the file and return the result to the first part of the ninth day's problem
+        """
+
+        sum = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            isSpace = False
+            uncompressed = []
+            curID = 0
+            for ch in content:
+                cnt = int(ch)
+                if isSpace:
+                    uncompressed.extend(['.'] * cnt)
+                else:
+                    uncompressed.extend([curID] * cnt)
+                    curID += 1
+                
+                isSpace = not isSpace
+            
+            for i in range(len(uncompressed) - 1, -1, -1):
+                if uncompressed[i] != '.':
+                    for j in range(i):
+                        if uncompressed[j] == '.':
+                            uncompressed[j], uncompressed[i] = uncompressed[i], uncompressed[j]
+            
+            for i in range(len(uncompressed)):
+                if uncompressed[i] != '.':
+                    sum += i * uncompressed[i]
+        
+        return sum
+
+
+
+    @staticmethod
+    def __d9p2(fileName):
+        """
+        Read the file and return the result to the second part of the ninth day's problem
+        """
+
+        sum = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            isSpace = False
+            uncompressed = []
+            spaces = []
+            files = []
+            maxLen = 0
+            curID = 0
+            for ch in content:
+                cnt = int(ch)
+                if isSpace:
+                    spaces.append([maxLen, cnt])
+                else:
+                    files.append([maxLen, cnt])
+                    curID += 1
+                
+                maxLen += cnt
+                isSpace = not isSpace
+            
+            for i in range(len(files) - 1, -1, -1):
+                for j in range(len(spaces)):
+                    if spaces[j][0] < files[i][0] and spaces[j][1] >= files[i][1]:
+                        spaces[j][1] -= files[i][1]
+                        files[i][0] = spaces[j][0]
+                        spaces[j][0] += files[i][1]
+                        break
+            
+            uncompressed = ['.'] * maxLen
+
+            for i in range(len(files)):
+                for j in range(files[i][1]):
+                    uncompressed[files[i][0] + j] = i
+            
+            for i in range(len(uncompressed)):
+                if uncompressed[i] != '.':
+                    sum += i * uncompressed[i]
+        
+        return sum
+
+
 
     # Table of functions for each day and part
     __table = {
@@ -872,6 +959,10 @@ class AdventOfCode:
         8: {
             1: __d8p1,
             2: __d8p2
+        },
+        9: {
+            1: __d9p1,
+            2: __d9p2
         }
     }
 
@@ -886,4 +977,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(8, 2, "Inputs/Day8/p8.txt")
+AdventOfCode.Solve(9, 2, "Inputs/Day9/p9.txt")
