@@ -926,6 +926,117 @@ class AdventOfCode:
 
 
 
+    @staticmethod
+    def __d10p1(fileName):
+        """
+        Read the file and return the result to the first part of the tenth day's problem
+        """
+
+        sum = 0
+        with open(fileName, 'r') as file:
+            content = file.read()
+            lines = content.split('\n')
+
+            mat = []
+            zeroes = []
+
+            for line in lines:
+                v = []
+                for ch in line:
+                    v.append(int(ch))
+
+                mat.append(v)
+
+                for i, num in enumerate(mat[-1]):
+                    if num == 0:
+                        zeroes.append((len(mat) - 1, i))
+            
+            from collections import deque
+
+            q = deque()
+
+            dir = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+            n, m = len(mat), len(mat[0])
+
+            for zero in zeroes:
+                q.append(zero)
+
+                found = set()
+
+                while len(q) > 0:
+                    fr = q.popleft()
+
+                    if mat[fr[0]][fr[1]] == 9:
+                        if fr not in found:
+                            found.add(fr)
+                            sum += 1
+                        continue
+                    
+                    for d in dir:
+                        newFr = (fr[0] + d[0], fr[1] + d[1])
+
+                        if newFr[0] >= 0 and newFr[0] < n and newFr[1] >= 0 and newFr[1] < m and mat[newFr[0]][newFr[1]] == mat[fr[0]][fr[1]] + 1:
+                            q.append(newFr)
+        
+        return sum
+    
+
+
+
+    @staticmethod
+    def __d10p2(fileName):
+        """
+        Read the file and return the result to the second part of the tenth day's problem
+        """
+
+        sum = 0
+        with open(fileName, 'r') as file:
+            content = file.read()
+            lines = content.split('\n')
+
+            mat = []
+            zeroes = []
+
+            for line in lines:
+                v = []
+                for ch in line:
+                    v.append(int(ch))
+
+                mat.append(v)
+
+                for i, num in enumerate(mat[-1]):
+                    if num == 0:
+                        zeroes.append((len(mat) - 1, i))
+            
+            from collections import deque
+
+            q = deque()
+
+            dir = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+            n, m = len(mat), len(mat[0])
+
+            for zero in zeroes:
+                q.append(zero)
+
+                while len(q) > 0:
+                    fr = q.popleft()
+
+                    if mat[fr[0]][fr[1]] == 9:
+                        sum += 1
+                        continue
+                    
+                    for d in dir:
+                        newFr = (fr[0] + d[0], fr[1] + d[1])
+
+                        if newFr[0] >= 0 and newFr[0] < n and newFr[1] >= 0 and newFr[1] < m and mat[newFr[0]][newFr[1]] == mat[fr[0]][fr[1]] + 1:
+                            q.append(newFr)
+        
+        return sum
+                    
+            
+
+
+
     # Table of functions for each day and part
     __table = {
         1: {
@@ -963,6 +1074,10 @@ class AdventOfCode:
         9: {
             1: __d9p1,
             2: __d9p2
+        },
+        10: {
+            1: __d10p1,
+            2: __d10p2
         }
     }
 
@@ -977,4 +1092,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(9, 2, "Inputs/Day9/p9.txt")
+AdventOfCode.Solve(10, 2, "Inputs/Day10/p10.txt")
