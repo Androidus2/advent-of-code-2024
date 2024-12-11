@@ -1035,6 +1035,134 @@ class AdventOfCode:
                     
             
 
+    
+    @staticmethod
+    def __d11p1(fileName):
+        """
+        Read the file and return the result to the first part of the eleventh day's problem
+        """
+
+        from collections import deque
+
+        def solve(queue, solved, blink):
+            if len(queue) == 0 or blink == 0:
+                return 0
+            
+            fr = queue.popleft()
+
+            if fr not in solved:
+                solved[fr] = {}
+
+            if blink == 1:
+                solved[fr][blink] = 1
+
+            if blink in solved[fr]:
+                return solved[fr][blink]
+                
+            if fr == 0:
+                queue.appendleft(1)
+                solved[fr][blink] = solve(queue, solved, blink - 1)
+            else:
+                numCif = 0
+                cn = fr
+                while cn > 0:
+                    numCif += 1
+                    cn //= 10
+                
+                if numCif % 2 == 0:
+                    # split in two
+                    half = 10 ** (numCif // 2)
+                    queue.appendleft(fr // half)
+                    queue.appendleft(fr % half)
+                    solved[fr][blink] = solve(queue, solved, blink - 1) + solve(queue, solved, blink - 1)
+                else:
+                    queue.appendleft(fr * 2024)
+                    solved[fr][blink] = solve(queue, solved, blink - 1)
+
+            return solved[fr][blink]
+
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            nums = [int(x) for x in file.read().split()]
+
+            blinks = 26
+
+            solved = {}
+            q = deque()
+
+            for num in nums:
+                q.append(num)
+                cnt += solve(q, solved, blinks)
+        
+        return cnt
+
+
+
+    @staticmethod
+    def __d11p2(fileName):
+        """
+        Read the file and return the result to the second part of the eleventh day's problem
+        """
+
+        from collections import deque
+        import sys
+
+        sys.setrecursionlimit(1000000)
+
+        def solve(queue, solved, blink):
+            if len(queue) == 0 or blink == 0:
+                return 0
+            
+            fr = queue.popleft()
+
+            if fr not in solved:
+                solved[fr] = {}
+
+            if blink == 1:
+                solved[fr][blink] = 1
+
+            if blink in solved[fr]:
+                return solved[fr][blink]
+                
+            if fr == 0:
+                queue.appendleft(1)
+                solved[fr][blink] = solve(queue, solved, blink - 1)
+            else:
+                numCif = 0
+                cn = fr
+                while cn > 0:
+                    numCif += 1
+                    cn //= 10
+                
+                if numCif % 2 == 0:
+                    # split in two
+                    half = 10 ** (numCif // 2)
+                    queue.appendleft(fr // half)
+                    queue.appendleft(fr % half)
+                    solved[fr][blink] = solve(queue, solved, blink - 1) + solve(queue, solved, blink - 1)
+                else:
+                    queue.appendleft(fr * 2024)
+                    solved[fr][blink] = solve(queue, solved, blink - 1)
+
+            return solved[fr][blink]
+
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            nums = [int(x) for x in file.read().split()]
+
+            blinks = 76
+
+            solved = {}
+            q = deque()
+
+            for num in nums:
+                q.append(num)
+                cnt += solve(q, solved, blinks)
+        
+        return cnt
+
 
 
     # Table of functions for each day and part
@@ -1078,6 +1206,10 @@ class AdventOfCode:
         10: {
             1: __d10p1,
             2: __d10p2
+        },
+        11: {
+            1: __d11p1,
+            2: __d11p2
         }
     }
 
@@ -1092,4 +1224,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(10, 2, "Inputs/Day10/p10.txt")
+AdventOfCode.Solve(11, 2, "Inputs/Day11/p11.txt")
