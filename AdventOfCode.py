@@ -1165,6 +1165,177 @@ class AdventOfCode:
 
 
 
+    @staticmethod
+    def __d12p1(fileName):
+        """
+        Read the file and return the result to the first part of the twelfth day's problem
+        """
+
+        def inbounds(x, y, n, m):
+            return x >= 0 and x < n and y >= 0 and y < m
+
+        def solve(x, y, n, m, mat, viz, dir):
+            if not inbounds(x, y, n, m) or viz[x][y]:
+                return (0, 0)
+            
+            viz[x][y] = True
+            
+            area = 0
+            perimeter = 0
+
+            for d in dir:
+                if inbounds(x + d[0], y + d[1], n, m) and mat[x + d[0]][y + d[1]] == mat[x][y] and not viz[x + d[0]][y + d[1]]:
+                    a, b = solve(x + d[0], y + d[1], n, m, mat, viz, dir)
+                    area += a
+                    perimeter += b
+                elif not inbounds(x + d[0], y + d[1], n, m) or mat[x + d[0]][y + d[1]] != mat[x][y]:
+                    perimeter += 1
+            
+            return (area + 1, perimeter)
+
+        sum = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+            
+            mat = []
+            viz = []
+            dir = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+            for line in content.split('\n'):
+                mat.append(list(line))
+                viz.append([False] * len(line))
+
+
+            n = len(mat)
+            m = len(mat[0])
+
+            for i in range(n):
+                for j in range(m):
+                    if not viz[i][j]:
+                        a, b = solve(i, j, n, m, mat, viz, dir)
+                        sum += a * b
+
+                        #print(mat[i][j], a, b)
+        
+        return sum
+    
+
+
+    @staticmethod
+    def __d12p2(fileName):
+        """
+        Read the file and return the result to the second part of the twelfth day's problem
+        """
+
+        def inbounds(x, y, n, m):
+            return x >= 0 and x < n and y >= 0 and y < m
+        
+        def countCorners(x, y, n, m, mat, viz, dir):
+            # 16 possible states
+            corners = 0
+            neighbors = 0
+
+            for d in dir:
+                if inbounds(x + d[0], y + d[1], n, m) and mat[x + d[0]][y + d[1]] == mat[x][y]:
+                    neighbors += 1
+
+            # Case 1, no neighbors
+            if neighbors == 0:
+                corners += 4
+            # Case 2, one neighbor
+            elif neighbors == 1:
+                corners += 2
+            # Case 3, two neighbors
+            elif neighbors == 2:
+                # Case 3.1, neighbors are opposite
+                if (inbounds(x + 1, y, n, m) and mat[x + 1][y] == mat[x][y]) and (inbounds(x - 1, y, n, m) and mat[x - 1][y] == mat[x][y]) or \
+                    (inbounds(x, y + 1, n, m) and mat[x][y + 1] == mat[x][y]) and (inbounds(x, y - 1, n, m) and mat[x][y - 1] == mat[x][y]):
+                    corners += 0
+                # Case 3.2, neighbors are adjacent
+                else:
+                    corners += 1
+                    hasInner = False
+                    # Check if there is also a neighbor inside the 2 neighbors
+                    for i in range(len(dir)):
+                        if inbounds(x + dir[i][0], y + dir[i][1], n, m) and mat[x + dir[i][0]][y + dir[i][1]] == mat[x][y] and \
+                            inbounds(x + dir[i - 1][0], y + dir[i - 1][1], n, m) and mat[x + dir[i - 1][0]][y + dir[i - 1][1]] == mat[x][y] and \
+                            inbounds(x + dir[i - 1][0] + dir[i][0], y + dir[i - 1][1] + dir[i][1], n, m) and mat[x + dir[i - 1][0] + dir[i][0]][y + dir[i - 1][1] + dir[i][1]] == mat[x][y]:
+                            hasInner = True
+                            break
+                    #print(x, y, hasInner)
+                    if not hasInner:
+                        corners += 1
+            # Case 4, three neighbors or four neighbors
+            else:
+                inners = 0
+                # Check how many inner neighbors there are
+                for i in range(len(dir)):
+                    if inbounds(x + dir[i][0], y + dir[i][1], n, m) and mat[x + dir[i][0]][y + dir[i][1]] == mat[x][y] and \
+                        inbounds(x + dir[i - 1][0], y + dir[i - 1][1], n, m) and mat[x + dir[i - 1][0]][y + dir[i - 1][1]] == mat[x][y] and \
+                        inbounds(x + dir[i - 1][0] + dir[i][0], y + dir[i - 1][1] + dir[i][1], n, m) and mat[x + dir[i - 1][0] + dir[i][0]][y + dir[i - 1][1] + dir[i][1]] == mat[x][y]:
+                        inners += 1
+                
+                #print(x, y, inners, neighbors)
+
+                if neighbors == 3:
+                    corners += 2 - inners
+                else:
+                    corners += 4 - inners
+            
+            return corners
+
+
+
+        def solve(x, y, n, m, mat, viz, dir):
+            if not inbounds(x, y, n, m) or viz[x][y]:
+                return (0, 0)
+            
+            viz[x][y] = True
+            
+            area = 0
+            corners = 0
+
+            for d in dir:
+                if inbounds(x + d[0], y + d[1], n, m) and mat[x + d[0]][y + d[1]] == mat[x][y] and not viz[x + d[0]][y + d[1]]:
+                    a, b = solve(x + d[0], y + d[1], n, m, mat, viz, dir)
+                    area += a
+                    corners += b
+            
+            corners += countCorners(x, y, n, m, mat, viz, dir)
+            
+            return (area + 1, corners)
+
+        sum = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+            
+            mat = []
+            viz = []
+            dir = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+            for line in content.split('\n'):
+                mat.append(list(line))
+                viz.append([False] * len(line))
+
+
+            n = len(mat)
+            m = len(mat[0])
+
+            for i in range(n):
+                for j in range(m):
+                    if not viz[i][j]:
+                        a, b = solve(i, j, n, m, mat, viz, dir)
+                        sum += a * b
+
+                        #print(mat[i][j], a, b)
+        
+        return sum
+
+
+
+
     # Table of functions for each day and part
     __table = {
         1: {
@@ -1210,6 +1381,10 @@ class AdventOfCode:
         11: {
             1: __d11p1,
             2: __d11p2
+        },
+        12: {
+            1: __d12p1,
+            2: __d12p2
         }
     }
 
@@ -1224,4 +1399,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(11, 2, "Inputs/Day11/p11.txt")
+AdventOfCode.Solve(12, 2, "Inputs/Day12/p12.txt")
