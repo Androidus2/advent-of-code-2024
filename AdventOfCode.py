@@ -1335,6 +1335,109 @@ class AdventOfCode:
 
 
 
+    @staticmethod
+    def __d13p1(fileName):
+        """
+        Read the file and return the result to the first part of the thirteenth day's problem
+        """
+
+        sum = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+            lineType = 0
+
+            eqs = []
+            currentEq = []
+
+            for line in content.split('\n'):
+                if lineType == 0 or lineType == 1:
+                    tok = line.split()
+                    currentEq.append((int(tok[2][2:-1]), int(tok[3][2:])))
+                elif lineType == 2:
+                    tok = line.split('=')
+                    currentEq.append((int(tok[1][:-3]), int(tok[2])))
+                    eqs.append(currentEq)
+                    currentEq = []
+                
+                lineType = (lineType + 1) % 4
+            
+            for eq in eqs:
+                minSol = -1
+                for i in range(100):
+                    for j in range(100):
+                        if eq[0][0] * i + eq[1][0] * j == eq[2][0] and eq[0][1] * i + eq[1][1] * j == eq[2][1]:
+                            #print('Found', i, j)
+                            if minSol == -1 or minSol > 3 * i + j:
+                                minSol = 3 * i + j
+                if minSol != -1:
+                    sum += minSol
+        
+        return sum
+    
+
+
+    @staticmethod
+    def __d13p2(fileName):
+        """
+        Read the file and return the result to the second part of the thirteenth day's problem
+        """
+
+        def gcd(a, b):
+            if b == 0:
+                return a
+            return gcd(b, a % b)
+
+        sum = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+            lineType = 0
+
+            eqs = []
+            currentEq = []
+
+            for line in content.split('\n'):
+                if lineType == 0 or lineType == 1:
+                    tok = line.split()
+                    currentEq.append((int(tok[2][2:-1]), int(tok[3][2:])))
+                elif lineType == 2:
+                    tok = line.split('=')
+                    currentEq.append((int(tok[1][:-3]) + 10000000000000, int(tok[2]) + 10000000000000))
+                    eqs.append(currentEq)
+                    currentEq = []
+                
+                lineType = (lineType + 1) % 4
+            
+            for eq in eqs:
+                # eq[0][0] * x + eq[1][0] * y = eq[2][0]
+                # eq[0][1] * x + eq[1][1] * y = eq[2][1]
+
+                xLCM = eq[0][0] * eq[0][1] // gcd(eq[0][0], eq[0][1])
+                mult1X = xLCM // eq[0][0]
+                mult2X = xLCM // eq[0][1]
+
+                mult1Y = eq[1][0] * mult1X
+                mult2Y = eq[1][1] * mult2X
+
+                mult1Total = eq[2][0] * mult1X
+                mult2Total = eq[2][1] * mult2X
+
+                multTotalDiff = mult1Total - mult2Total
+                multYDiff = mult1Y - mult2Y
+
+                y = multTotalDiff // multYDiff
+
+                totalForX = eq[2][0] - eq[1][0] * y
+                x = totalForX // eq[0][0]
+
+                if eq[0][0] * x + eq[1][0] * y == eq[2][0] and eq[0][1] * x + eq[1][1] * y == eq[2][1]:
+                    sum += 3 * x + y
+        
+        return sum
+
+
+
 
     # Table of functions for each day and part
     __table = {
@@ -1385,6 +1488,10 @@ class AdventOfCode:
         12: {
             1: __d12p1,
             2: __d12p2
+        },
+        13: {
+            1: __d13p1,
+            2: __d13p2
         }
     }
 
@@ -1399,4 +1506,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(12, 2, "Inputs/Day12/p12.txt")
+AdventOfCode.Solve(13, 2, "Inputs/Day13/p13.txt")
