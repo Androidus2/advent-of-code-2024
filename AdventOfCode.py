@@ -1438,6 +1438,146 @@ class AdventOfCode:
 
 
 
+    @staticmethod
+    def __d14p1(fileName):
+        """
+        Read the file and return the result to the first part of the fourteenth day's problem
+        """
+
+        prod = 1
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            robots = []
+
+            for line in content.split('\n'):
+                p,v = line.split()
+                px,py = [int(x) for x in p.split('=')[1].split(',')]
+                vx,vy = [int(x) for x in v.split('=')[1].split(',')]
+
+                robots.append([px,py,vx,vy])
+
+            m = 103 # 103
+            n = 101 # 101
+            iterations = 100
+
+            for i in range(iterations):
+                for r in robots:
+                    r[0] = (r[0] + r[2] + n) % n
+                    r[1] = (r[1] + r[3] + m) % m
+                
+            quadrants = [0] * 4
+
+            for r in robots:
+                if r[0] < n // 2 and r[1] < m // 2:
+                    quadrants[0] += 1
+                elif r[0] < n // 2 and r[1] > m // 2:
+                    quadrants[1] += 1
+                elif r[0] > n // 2 and r[1] < m // 2:
+                    quadrants[2] += 1
+                elif r[0] > n // 2 and r[1] > m // 2:
+                    quadrants[3] += 1
+            
+            for q in quadrants:
+                prod *= q
+        
+        return prod
+    
+
+
+    @staticmethod
+    def __d14p2(fileName):
+        """
+        Read the file and return the result to the second part of the fourteenth day's problem
+        """
+
+        # The solution looks for the longest line of robots in the matrix
+
+        def buildMatrix(robots, n, m):
+            mat = [['.'] * m for i in range(n)]
+
+            for r in robots:
+                mat[r[0]][r[1]] = '#'
+            
+            return mat
+        
+        def longestLine(mat):
+            longest = 0
+
+            for i in range(len(mat)):
+                cnt = 0
+                for j in range(len(mat[i])):
+                    if mat[i][j] == '#':
+                        cnt += 1
+                    else:
+                        if cnt > longest:
+                            longest = cnt
+                        cnt = 0
+                if cnt > longest:
+                    longest = cnt
+            
+            # Check columns
+            for j in range(len(mat[0])):
+                cnt = 0
+                for i in range(len(mat)):
+                    if mat[i][j] == '#':
+                        cnt += 1
+                    else:
+                        if cnt > longest:
+                            longest = cnt
+                        cnt = 0
+                if cnt > longest:
+                    longest = cnt
+            
+            return longest
+
+        def printRobots(robots, n, m):
+            mat = buildMatrix(robots, n, m)
+            
+            for line in mat:
+                print(''.join(line))
+            
+            print()
+            print()
+
+        prod = 1
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            robots = []
+
+            for line in content.split('\n'):
+                p,v = line.split()
+                px,py = [int(x) for x in p.split('=')[1].split(',')]
+                vx,vy = [int(x) for x in v.split('=')[1].split(',')]
+
+                robots.append([px,py,vx,vy])
+
+            m = 103 # 103
+            n = 101 # 101
+            iterations = 100000
+
+            longest = 0
+            longestIter = 0
+
+            for i in range(iterations):
+                for r in robots:
+                    r[0] = (r[0] + r[2] + n) % n
+                    r[1] = (r[1] + r[3] + m) % m
+                
+                mat = buildMatrix(robots, n, m)
+                longestLineNow = longestLine(mat)
+
+                if longestLineNow > longest:
+                    longest = longestLineNow
+                    longestIter = i
+            
+        
+        return longestIter + 1
+            
+
 
     # Table of functions for each day and part
     __table = {
@@ -1492,6 +1632,10 @@ class AdventOfCode:
         13: {
             1: __d13p1,
             2: __d13p2
+        },
+        14: {
+            1: __d14p1,
+            2: __d14p2
         }
     }
 
@@ -1506,4 +1650,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(13, 2, "Inputs/Day13/p13.txt")
+AdventOfCode.Solve(14, 2, "Inputs/Day14/p14.txt")
