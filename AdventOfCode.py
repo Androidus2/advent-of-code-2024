@@ -1576,7 +1576,215 @@ class AdventOfCode:
             
         
         return longestIter + 1
+
+
+
+    @staticmethod
+    def __d15p1(fileName):
+        """
+        Read the file and return the result to the first part of the fifteenth day's problem
+        """
+
+        def attemptToMove(robot, move, mp):
+            dir = {'^': (-1, 0), 'v': (1, 0), '<': (0, -1), '>': (0, 1)}
+
+            x = robot[0]
+            y = robot[1]
+
+            while True:
+                x += dir[move][0]
+                y += dir[move][1]
+
+                if x < 0 or x >= len(mp) or y < 0 or y >= len(mp[0]):
+                    break
+                
+                if mp[x][y] == '#':
+                    return False
+                
+                if mp[x][y] == '.':
+                    break
             
+            return True
+
+        def executeMove(robot, move, mp):
+            dir = {'^': (-1, 0), 'v': (1, 0), '<': (0, -1), '>': (0, 1)}
+
+            x = robot[0]
+            y = robot[1]
+
+            last = '@'
+            mp[x][y] = '.'
+
+            while True:
+                x += dir[move][0]
+                y += dir[move][1]
+
+                if x < 0 or x >= len(mp) or y < 0 or y >= len(mp[0]):
+                    break
+                
+                if mp[x][y] == '#':
+                    break
+                
+                tmp = mp[x][y]
+                mp[x][y] = last
+                last = tmp
+
+                if last == '.':
+                    break
+            
+            robot[0] += dir[move][0]
+            robot[1] += dir[move][1]
+                
+
+
+        sum = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            mp = []
+            readingMap = True
+            moves = []
+            robot = []
+            for i, line in enumerate(content.split('\n')):
+                if line == '':
+                    readingMap = False
+                elif readingMap:
+                    for j in range(len(line)):
+                        if line[j] == '@':
+                            robot = [i, j]
+                    mp.append(list(line))
+                else:
+                    moves.extend(list(line))
+            
+            for move in moves:
+                #print("Trying to move ", move)
+                if attemptToMove(robot, move, mp):
+                    executeMove(robot, move, mp)
+                    #print('Success')
+                
+                #for i in range(len(mp)):
+                    #print(''.join(mp[i]))
+                #rint()
+                #print()
+            
+            for i in range(len(mp)):
+                #print(''.join(mp[i]))
+                for j in range(len(mp[i])):
+                    if mp[i][j] == 'O':
+                        sum += 100 * i + j
+        
+        return sum
+    
+
+
+    @staticmethod
+    def __d15p2(fileName):
+        """
+        Read the file and return the result to the second part of the fifteenth day's problem
+        """
+
+        import sys
+        sys.setrecursionlimit(1000000)
+
+        def attemptToMove(robot, move, mp):
+            dir = {'^': (-1, 0), 'v': (1, 0), '<': (0, -1), '>': (0, 1)}
+
+            x = robot[0]
+            y = robot[1]
+
+            x += dir[move][0]
+            y += dir[move][1]
+            
+            if mp[x][y] == '#':
+                return False
+            
+            if mp[x][y] == '[':
+                return attemptToMove([x, y], move, mp) and (move == '>' or move == '<' or attemptToMove([x, y + 1], move, mp))
+            elif mp[x][y] == ']':
+                return attemptToMove([x, y], move, mp) and (move == '>' or move == '<' or attemptToMove([x, y - 1], move, mp))
+            
+            return True
+
+        def executeMove(robot, move, mp):
+            dir = {'^': (-1, 0), 'v': (1, 0), '<': (0, -1), '>': (0, 1)}
+
+            x = robot[0]
+            y = robot[1]
+
+            last = mp[x][y]
+            mp[x][y] = '.'
+            
+            x += dir[move][0]
+            y += dir[move][1]
+
+            if mp[x][y] == '[' and (move == '^' or move == 'v'):
+                executeMove([x, y], move, mp)
+                executeMove([x, y + 1], move, mp)
+            elif mp[x][y] == ']' and (move == '^' or move == 'v'):
+                executeMove([x, y], move, mp)
+                executeMove([x, y - 1], move, mp)
+            elif mp[x][y] == '[' or mp[x][y] == ']':
+                executeMove([x, y], move, mp)
+            
+            mp[x][y] = last
+            
+            robot[0] += dir[move][0]
+            robot[1] += dir[move][1]
+                
+
+
+        sum = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            mp = []
+            readingMap = True
+            moves = []
+            robot = []
+            for i, line in enumerate(content.split('\n')):
+                if line == '':
+                    readingMap = False
+                elif readingMap:
+                    mp.append([])
+                    for j in range(len(line)):
+                        if line[j] == '@':
+                            robot = [i, j * 2]
+                            mp[-1].extend(['@', '.'])
+                        elif line[j] == '#':
+                            mp[-1].extend(['#', '#'])
+                        elif line[j] == 'O':
+                            mp[-1].extend(['[', ']'])
+                        else:
+                            mp[-1].extend(['.', '.'])
+                        
+                else:
+                    moves.extend(list(line))
+            
+            #for i in range(len(mp)):
+                #print(''.join(mp[i]))
+            
+            for move in moves:
+                #print("Trying to move ", move)
+                if attemptToMove(robot, move, mp):
+                    executeMove(robot, move, mp)
+                    #print('Success')
+                
+                #for i in range(len(mp)):
+                    #print(''.join(mp[i]))
+                #print()
+                #print()
+            
+            for i in range(len(mp)):
+                #print(''.join(mp[i]))
+                for j in range(len(mp[i])):
+                    if mp[i][j] == '[':
+                        sum += 100 * i + j
+        
+        return sum
+
+
 
 
     # Table of functions for each day and part
@@ -1636,6 +1844,10 @@ class AdventOfCode:
         14: {
             1: __d14p1,
             2: __d14p2
+        },
+        15: {
+            1: __d15p1,
+            2: __d15p2
         }
     }
 
@@ -1650,4 +1862,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(14, 2, "Inputs/Day14/p14.txt")
+AdventOfCode.Solve(15, 2, "Inputs/Day15/p15.txt")
