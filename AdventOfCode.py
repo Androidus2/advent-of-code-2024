@@ -1786,6 +1786,155 @@ class AdventOfCode:
 
 
 
+    @staticmethod
+    def __d16p1(fileName):
+        """
+        Read the file and return the result to the first part of the sixteenth day's problem
+        """
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            mat = []
+
+            start = (-1, -1)
+            end = (-1, -1)
+
+            for line in content.split('\n'):
+                mat.append(list(line))
+
+                for i, ch in enumerate(line):
+                    if ch == 'S':
+                        start = (len(mat) - 1, i)
+                    elif ch == 'E':
+                        end = (len(mat) - 1, i)
+            
+            from collections import deque
+
+            q = deque()
+
+            dir = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+            costs = [[[-1] * len(mat[0]) for i in range(len(mat))] for j in range(4)]
+
+            q.append((start[0], start[1], 0, 0))
+
+            while len(q) > 0:
+                fr = q.popleft()
+                #print(fr)
+                
+                if costs[fr[2]][fr[0]][fr[1]] == -1 or costs[fr[2]][fr[0]][fr[1]] > fr[3]:
+                    costs[fr[2]][fr[0]][fr[1]] = fr[3]
+
+                    for i, d in enumerate(dir):
+                        if fr[2] == i:
+                            newFr = (fr[0] + d[0], fr[1] + d[1], i, fr[3] + 1)
+                        else:
+                            newFr = (fr[0], fr[1], i, fr[3] + 1000)
+                        
+                        if newFr[0] >= 0 and newFr[0] < len(mat) and newFr[1] >= 0 and newFr[1] < len(mat[0]) and mat[newFr[0]][newFr[1]] != '#':
+                            q.append(newFr)
+            
+            return min([costs[i][end[0]][end[1]] for i in range(4)])
+        
+    
+
+
+    @staticmethod
+    def __d16p2(fileName):
+        """
+        Read the file and return the result to the second part of the sixteenth day's problem
+        """
+
+        def isOnOptimalPath(fr, start, end, costs, mat, dir):
+            # if we are out of bounds or we are on a wall, return False
+            if fr[0] < 0 or fr[0] >= len(mat) or fr[1] < 0 or fr[1] >= len(mat[0]) or mat[fr[0]][fr[1]] == '#' or costs[fr[2]][fr[0]][fr[1]] < 0 or fr[3] < 0:
+                return False
+            
+            if fr[3] == 0:
+                if fr[0] == start[0] and fr[1] == start[1]:
+                    mat[fr[0]][fr[1]] = 'O'
+                    return True
+                return False
+            
+            result = False
+            
+            for i, d in enumerate(dir):
+                if fr[2] == i:
+                    newFr = (fr[0] - d[0], fr[1] - d[1], i, fr[3] - 1)
+                else:
+                    newFr = (fr[0], fr[1], i, fr[3] - 1000)
+                if costs[newFr[2]][newFr[0]][newFr[1]] <= fr[3]:
+                    cmp = isOnOptimalPath(newFr, start, end, costs, mat, dir)
+                    result = result or cmp
+
+
+            if result:
+                mat[fr[0]][fr[1]] = 'O'
+            return result
+
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            mat = []
+
+            start = (-1, -1)
+            end = (-1, -1)
+
+            for line in content.split('\n'):
+                mat.append(list(line))
+
+                for i, ch in enumerate(line):
+                    if ch == 'S':
+                        start = (len(mat) - 1, i)
+                    elif ch == 'E':
+                        end = (len(mat) - 1, i)
+            
+            from collections import deque
+
+            q = deque()
+
+            dir = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+            costs = [[[-1] * len(mat[0]) for i in range(len(mat))] for j in range(4)]
+
+            q.append((start[0], start[1], 0, 0))
+
+            while len(q) > 0:
+                fr = q.popleft()
+                #print(fr)
+                
+                if costs[fr[2]][fr[0]][fr[1]] == -1 or costs[fr[2]][fr[0]][fr[1]] > fr[3]:
+                    costs[fr[2]][fr[0]][fr[1]] = fr[3]
+
+                    for i, d in enumerate(dir):
+                        if fr[2] == i:
+                            newFr = (fr[0] + d[0], fr[1] + d[1], i, fr[3] + 1)
+                        else:
+                            newFr = (fr[0], fr[1], i, fr[3] + 1000)
+                        
+                        if newFr[0] >= 0 and newFr[0] < len(mat) and newFr[1] >= 0 and newFr[1] < len(mat[0]) and mat[newFr[0]][newFr[1]] != '#':
+                            q.append(newFr)
+            
+            # reconstruct paths
+            minn = min([costs[i][end[0]][end[1]] for i in range(4)])
+                    
+
+            for i in range(4):
+                if costs[i][end[0]][end[1]] == minn:
+                    isOnOptimalPath((end[0], end[1], i, minn), start, end, costs, mat, dir)
+                
+            for i in range(len(mat)):
+                for j in range(len(mat[i])):
+                    if mat[i][j] == 'O':
+                        cnt += 1
+            
+        return cnt
+
+
+
 
     # Table of functions for each day and part
     __table = {
@@ -1848,6 +1997,10 @@ class AdventOfCode:
         15: {
             1: __d15p1,
             2: __d15p2
+        },
+        16: {
+            1: __d16p1,
+            2: __d16p2
         }
     }
 
@@ -1862,4 +2015,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(15, 2, "Inputs/Day15/p15.txt")
+AdventOfCode.Solve(16, 2, "Inputs/Day16/p16.txt")
