@@ -1935,6 +1935,130 @@ class AdventOfCode:
 
 
 
+    @staticmethod
+    def __d17p1(fileName):
+        """
+        Read the file and return the result to the first part of the seventeenth day's problem
+        """
+
+        def comboOperand(combo, regA, regB, regC):
+            if combo <= 3:
+                return combo
+            if combo == 4:
+                return regA
+            if combo == 5:
+                return regB
+            return regC
+
+        ret = ""
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            regA = 0
+            regB = 0
+            regC = 0
+            ip = 0
+            instructions = []
+
+            for i, line in enumerate(content.split('\n')):
+                if i == 0:
+                    regA = int(line.split()[2])
+                elif i == 1:
+                    regB = int(line.split()[2])
+                elif i == 2:
+                    regC = int(line.split()[2])
+                elif i == 4:
+                    instructions = [int(x) for x in line.split()[1].split(',')]
+            
+            #print(regA, regB, regC, instructions)
+            
+            while ip + 1 < len(instructions):
+                opcode = instructions[ip]
+                operand = instructions[ip + 1]
+
+                if opcode == 0:
+                    regA = regA // (2 ** comboOperand(operand, regA, regB, regC))
+                elif opcode == 1:
+                    regB = regB ^ operand
+                elif opcode == 2:
+                    regB = comboOperand(operand, regA, regB, regC) % 8
+                elif opcode == 3:
+                    if regA != 0:
+                        ip = operand
+                        continue
+                elif opcode == 4:
+                    regB = regB ^ regC
+                elif opcode == 5:
+                    if len(ret) != 0:
+                        ret += ','
+                    #print(operand, regA, regB, regC)
+                    ret += str(comboOperand(operand, regA, regB, regC) % 8)
+                elif opcode == 6:
+                    regB = regA // (2 ** comboOperand(operand, regA, regB, regC))
+                else:
+                    regC = regA // (2 ** comboOperand(operand, regA, regB, regC))
+                
+                ip += 2
+        
+        return ret
+
+
+
+    @staticmethod
+    def __d17p2(fileName):
+        """
+        Read the file and return the result to the second part of the seventeenth day's problem
+        """
+
+        solutions = []
+
+        def solve(regA, instructions, ind):
+            if ind < 0:
+                solutions.append(regA)
+                return True
+            
+            obj = instructions[ind]
+            ok = False
+
+            for add in range(8):
+                newA = regA * 8 + add
+
+                regB = add
+                regB = regB ^ 2
+                regC = (newA // (2 ** regB)) % 8
+                regB = (regB ^ regC) % 8
+                regB = (regB ^ 7) % 8
+
+                if regB % 8 == obj:
+                    if solve(newA, instructions, ind - 1):
+                        ok = True
+            return ok
+
+        ret = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            regA = 0
+            regB = 0
+            regC = 0
+            ip = 0
+            instructions = []
+
+            for i, line in enumerate(content.split('\n')):
+                if i == 4:
+                    resultToCheckFor = line.split()[1]
+                    instructions = [int(x) for x in resultToCheckFor.split(',')]
+            
+            solve(0, instructions, len(instructions) - 1)
+
+            ret = min(solutions)
+
+        
+        return ret
+
+
 
     # Table of functions for each day and part
     __table = {
@@ -2001,6 +2125,10 @@ class AdventOfCode:
         16: {
             1: __d16p1,
             2: __d16p2
+        },
+        17: {
+            1: __d17p1,
+            2: __d17p2
         }
     }
 
@@ -2015,4 +2143,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(16, 2, "Inputs/Day16/p16.txt")
+AdventOfCode.Solve(17, 2, "Inputs/Day17/p17.txt")
