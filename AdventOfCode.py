@@ -2060,6 +2060,133 @@ class AdventOfCode:
 
 
 
+
+    @staticmethod
+    def __d18p1(fileName):
+        """
+        Read the file and return the result to the first part of the eighteenth day's problem
+        """
+
+        lun = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            n = 71
+
+            mat = [['.'] * n for i in range(n)]
+
+            cnt = 0
+
+            for line in content.split('\n'):
+                cnt += 1
+                a, b = [int(x) for x in line.split(',')]
+
+                if cnt <= 1024:
+                    mat[a][b] = '#'
+            
+            s = (0, 0)
+            e = (n - 1, n - 1)
+
+            dir = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+            from collections import deque
+
+            q = deque()
+
+            q.append((s[0], s[1], 0))
+
+            while len(q) > 0:
+                fr = q.popleft()
+
+                mat[fr[0]][fr[1]] = '#'
+
+                if fr[0] == e[0] and fr[1] == e[1]:
+                    lun = fr[2]
+                    break
+                
+                for d in dir:
+                    newFr = (fr[0] + d[0], fr[1] + d[1], fr[2] + 1)
+
+                    if newFr[0] >= 0 and newFr[0] < n and newFr[1] >= 0 and newFr[1] < n and mat[newFr[0]][newFr[1]] == '.':
+                        mat[newFr[0]][newFr[1]] = '#'
+                        q.append(newFr)
+        
+        return lun
+    
+
+
+
+
+    @staticmethod
+    def __d18p2(fileName):
+        """
+        Read the file and return the result to the second part of the eighteenth day's problem
+        """
+
+        lun = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            n = 71
+
+            mat = [['.'] * n for i in range(n)]
+
+            s = (0, 0)
+            e = (n - 1, n - 1)
+
+            dir = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+            from collections import deque
+
+            q = deque()
+
+            for line in content.split('\n'):
+                a, b = [int(x) for x in line.split(',')]
+
+                for i in range(n):
+                    for j in range(n):
+                        if mat[i][j] == '!':
+                            mat[i][j] = '.'
+                
+                mat[b][a] = '#'
+
+                #for i in range(n):
+                #    print(''.join(mat[i]))
+
+                q.append((s[0], s[1], 0))
+
+                ok = False
+
+                while len(q) > 0:
+                    fr = q.popleft()
+
+                    if mat[fr[0]][fr[1]] == '.':
+                        mat[fr[0]][fr[1]] = '!'
+
+                    if fr[0] == e[0] and fr[1] == e[1]:
+                        #print('Found ', a, b)
+                        ok = True
+                        break
+                    
+                    for d in dir:
+                        newFr = (fr[0] + d[0], fr[1] + d[1], fr[2] + 1)
+
+                        if newFr[0] >= 0 and newFr[0] < n and newFr[1] >= 0 and newFr[1] < n and mat[newFr[0]][newFr[1]] == '.':
+                            mat[newFr[0]][newFr[1]] = '!'
+                            q.append(newFr)
+                
+                if not ok:
+                    lun = (a, b)
+                    break
+            
+        
+        return str(lun)[1:-1].split(', ')[0] + ',' + str(lun)[1:-1].split(', ')[1]
+
+
+
+
     # Table of functions for each day and part
     __table = {
         1: {
@@ -2129,6 +2256,10 @@ class AdventOfCode:
         17: {
             1: __d17p1,
             2: __d17p2
+        },
+        18: {
+            1: __d18p1,
+            2: __d18p2
         }
     }
 
@@ -2143,4 +2274,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(17, 2, "Inputs/Day17/p17.txt")
+AdventOfCode.Solve(18, 2, "Inputs/Day18/p18.txt")
