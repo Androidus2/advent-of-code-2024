@@ -2187,6 +2187,91 @@ class AdventOfCode:
 
 
 
+    @staticmethod
+    def __d19p1(fileName):
+        """
+        Read the file and return the result to the first part of the nineteenth day's problem
+        """
+
+        def isValid(pat, found, patterns):
+            if pat in found:
+                return found[pat]
+
+            if pat == '':
+                return True
+            
+            ret = False
+
+            for p in patterns:
+                if pat.startswith(p):
+                    cmp = isValid(pat[len(p):], found, patterns)
+                    ret = ret or cmp
+            
+            found[pat] = ret
+            return ret
+
+
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            lines = content.split('\n')
+            patterns = [pat for pat in lines[0].split(', ')]
+
+            found = {}
+
+            for i in range(2, len(lines)):
+                if isValid(lines[i], found, patterns):
+                    cnt += 1
+        
+        return cnt
+    
+
+
+    @staticmethod
+    def __d19p2(fileName):
+        """
+        Read the file and return the result to the second part of the nineteenth day's problem
+        """
+
+        def isValid(pat, found, patterns):
+            if pat in found:
+                return found[pat]
+
+            if pat == '':
+                return 1
+            
+            ret = 0
+
+            for p in patterns:
+                if pat.startswith(p):
+                    cmp = isValid(pat[len(p):], found, patterns)
+                    ret = ret + cmp
+            
+            found[pat] = ret
+            return ret
+
+
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            lines = content.split('\n')
+            patterns = [pat for pat in lines[0].split(', ')]
+
+            found = {}
+
+            for i in range(2, len(lines)):
+                cnt += isValid(lines[i], found, patterns)
+        
+        return cnt
+                
+
+
+
+
     # Table of functions for each day and part
     __table = {
         1: {
@@ -2260,6 +2345,10 @@ class AdventOfCode:
         18: {
             1: __d18p1,
             2: __d18p2
+        },
+        19: {
+            1: __d19p1,
+            2: __d19p2
         }
     }
 
@@ -2274,4 +2363,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(18, 2, "Inputs/Day18/p18.txt")
+AdventOfCode.Solve(19, 2, "Inputs/Day19/p19.txt")
