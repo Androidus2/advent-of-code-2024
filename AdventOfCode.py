@@ -2271,6 +2271,171 @@ class AdventOfCode:
 
 
 
+    @staticmethod
+    def __d20p1(fileName):
+        """
+        Read the file and return the result to the first part of the twentieth day's problem
+        """
+
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            mat = []
+
+            for line in content.split('\n'):
+                mat.append(list(line))
+
+                for i, ch in enumerate(line):
+                    if ch == 'S':
+                        start = (len(mat) - 1, i)
+                        mat[len(mat) - 1][i] = 0
+                    elif ch == 'E':
+                        end = (len(mat) - 1, i)
+                        mat[len(mat) - 1][i] = '.'
+            
+            from collections import deque
+
+            q = deque()
+
+            q.append((start[0], start[1], 0))
+
+            ord = []
+
+            dir = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+            while len(q) > 0:
+                fr = q.popleft()
+                ord.append(fr)
+
+                if fr[0] == end[0] and fr[1] == end[1]:
+                    break
+                
+                for d in dir:
+                    newFr = (fr[0] + d[0], fr[1] + d[1], fr[2] + 1)
+
+                    if newFr[0] >= 0 and newFr[0] < len(mat) and newFr[1] >= 0 and newFr[1] < len(mat[0]) and mat[newFr[0]][newFr[1]] == '.':
+                        mat[newFr[0]][newFr[1]] = fr[2] + 1
+                        q.append(newFr)
+            
+            rez = {}
+            
+            for i in range(len(ord)):
+                for j in range(len(dir)):
+                    for k in range(j, len(dir)):
+                        d1 = dir[j]
+                        d2 = dir[k]
+                        newPosition = (ord[i][0] + d1[0] + d2[0], ord[i][1] + d1[1] + d2[1])
+
+                        if newPosition[0] >= 0 and newPosition[0] < len(mat) and newPosition[1] >= 0 and newPosition[1] < len(mat[0]):
+                            if str(mat[newPosition[0]][newPosition[1]]).isdigit() and mat[newPosition[0]][newPosition[1]] >= ord[i][2]:
+                                nm = mat[newPosition[0]][newPosition[1]] - ord[i][2] - 2
+                                if nm not in rez:
+                                    rez[nm] = 0
+                                rez[nm] += 1
+            
+            #for i in range(len(mat)):
+            #    print(''.join([str(x) for x in mat[i]]))
+
+            for k in rez:
+
+                if k >= 100:
+                    #print(k, rez[k])
+                    cnt += rez[k]
+        
+        return cnt
+    
+
+
+
+    @staticmethod
+    def __d20p2(fileName):
+        """
+        Read the file and return the result to the second part of the twentieth day's problem
+        """
+
+        def inBounds(mat, x, y):
+            return x >= 0 and x < len(mat) and y >= 0 and y < len(mat[0])
+        
+        def dist(x1, y1, x2, y2):
+            return abs(x1 - x2) + abs(y1 - y2)
+
+        def checkEnds(mat, startX, startY, rez):
+            ext = 20
+
+            for i in range(startX - ext, startX + ext + 1):
+                for j in range(startY - ext, startY + ext + 1):
+                    if dist(startX, startY, i, j) <= ext and inBounds(mat, i, j) and str(mat[i][j]).isdigit():
+                        nm = mat[i][j] - mat[startX][startY] - dist(startX, startY, i, j)
+                        if nm not in rez:
+                            rez[nm] = 0
+                        rez[nm] += 1
+
+
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            mat = []
+
+            for line in content.split('\n'):
+                mat.append(list(line))
+
+                for i, ch in enumerate(line):
+                    if ch == 'S':
+                        start = (len(mat) - 1, i)
+                        mat[len(mat) - 1][i] = 0
+                    elif ch == 'E':
+                        end = (len(mat) - 1, i)
+                        mat[len(mat) - 1][i] = '.'
+            
+            from collections import deque
+
+            q = deque()
+
+            q.append((start[0], start[1], 0))
+
+            ord = []
+
+            dir = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+            while len(q) > 0:
+                fr = q.popleft()
+                ord.append(fr)
+
+                if fr[0] == end[0] and fr[1] == end[1]:
+                    break
+                
+                for d in dir:
+                    newFr = (fr[0] + d[0], fr[1] + d[1], fr[2] + 1)
+
+                    if newFr[0] >= 0 and newFr[0] < len(mat) and newFr[1] >= 0 and newFr[1] < len(mat[0]) and mat[newFr[0]][newFr[1]] == '.':
+                        mat[newFr[0]][newFr[1]] = fr[2] + 1
+                        q.append(newFr)
+            
+            rez = {}
+            
+            for i in range(len(ord)):
+                checkEnds(mat, ord[i][0], ord[i][1], rez)
+            
+            #for i in range(len(mat)):
+            #    print(''.join([str(x) for x in mat[i]]))
+
+            for k in rez:
+
+                if k >= 100:
+                    #print(k, rez[k])
+                    cnt += rez[k]
+        
+        return cnt
+
+
+
+
+
+
 
     # Table of functions for each day and part
     __table = {
@@ -2349,6 +2514,10 @@ class AdventOfCode:
         19: {
             1: __d19p1,
             2: __d19p2
+        },
+        20: {
+            1: __d20p1,
+            2: __d20p2
         }
     }
 
@@ -2363,4 +2532,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(19, 2, "Inputs/Day19/p19.txt")
+AdventOfCode.Solve(20, 2, "Inputs/Day20/p20.txt")
