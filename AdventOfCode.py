@@ -2434,6 +2434,234 @@ class AdventOfCode:
 
 
 
+    @staticmethod
+    def __d21p1(fileName):
+        """
+        Read the file and return the result to the first part of the twenty-first day's problem
+        """
+
+        def findPosition(mat, ch):
+            for i in range(len(mat)):
+                for j in range(len(mat[i])):
+                    if mat[i][j] == ch:
+                        return (i, j)
+            return (-1, -1)
+
+        def ok(mat, st, seq):
+            for ch in seq:
+                if mat[st[0]][st[1]] == ' ':
+                    return False
+                if ch == '^':
+                    st = (st[0] - 1, st[1])
+                elif ch == 'v':
+                    st = (st[0] + 1, st[1])
+                elif ch == '<':
+                    st = (st[0], st[1] - 1)
+                elif ch == '>':
+                    st = (st[0], st[1] + 1)
+                
+                if st[0] < 0 or st[0] >= len(mat) or st[1] < 0 or st[1] >= len(mat[0]):
+                    return False
+            return True
+            
+
+        def generateMoves(position, objective, pad):
+            objPos = findPosition(pad, objective)
+            
+            ret = ''
+
+            if position[1] > objPos[1]:
+                ret += '<' * (position[1] - objPos[1])
+            
+            if position[0] > objPos[0]:
+                ret += '^' * (position[0] - objPos[0])
+            if position[0] < objPos[0]:
+                ret += 'v' * (objPos[0] - position[0])
+
+            if position[1] < objPos[1]:
+                ret += '>' * (objPos[1] - position[1])
+
+            if not ok(pad, position, ret):
+                ret = ''
+                if position[1] < objPos[1]:
+                    ret += '>' * (objPos[1] - position[1])
+
+                if position[0] > objPos[0]:
+                    ret += '^' * (position[0] - objPos[0])
+                if position[0] < objPos[0]:
+                    ret += 'v' * (objPos[0] - position[0])
+                
+                if position[1] > objPos[1]:
+                    ret += '<' * (position[1] - objPos[1])
+
+            
+            return ret
+
+
+        def solve(code, robots, keyPad, robotPad, maxRobots):
+            if robots <= 0:
+                return len(code)
+
+            ret = 0
+
+            posi = 3
+            posj = 2
+
+            if robots != maxRobots:
+                posi = 0
+
+            totalMoves = ''
+            
+            for ch in code:
+                if robots == maxRobots:
+                    moves = generateMoves((posi, posj), ch, keyPad)
+                    posi, posj = findPosition(keyPad, ch)
+                else:
+                    moves = generateMoves((posi, posj), ch, robotPad)
+                    posi, posj = findPosition(robotPad, ch)
+                totalMoves += moves + 'A'
+                ret += solve(moves + 'A', robots - 1, keyPad, robotPad, maxRobots)
+            return ret
+
+        ret = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            maxRobots = 3
+
+            keyPad = ['789', '456', '123', ' 0A']
+            robotPad = [' ^A', '<v>']
+
+            for code in content.split('\n'):
+                numericPart = 0
+
+                for ch in code:
+                    if ch >= '0' and ch <= '9':
+                        numericPart = numericPart * 10 + int(ch)
+
+                sv = solve(code, maxRobots, keyPad, robotPad, maxRobots)
+                ret += sv * numericPart
+
+        return ret
+    
+
+
+    @staticmethod
+    def __d21p2(fileName):
+        """
+        Read the file and return the result to the second part of the twenty-first day's problem
+        """
+
+        from functools import cache
+
+        @cache
+        def findPosition(mat, ch):
+            for i in range(len(mat)):
+                for j in range(len(mat[i])):
+                    if mat[i][j] == ch:
+                        return (i, j)
+            return (-1, -1)
+
+        @cache
+        def ok(mat, st, seq):
+            for ch in seq:
+                if mat[st[0]][st[1]] == ' ':
+                    return False
+                if ch == '^':
+                    st = (st[0] - 1, st[1])
+                elif ch == 'v':
+                    st = (st[0] + 1, st[1])
+                elif ch == '<':
+                    st = (st[0], st[1] - 1)
+                elif ch == '>':
+                    st = (st[0], st[1] + 1)
+                
+                if st[0] < 0 or st[0] >= len(mat) or st[1] < 0 or st[1] >= len(mat[0]):
+                    return False
+            return True
+            
+        @cache
+        def generateMoves(position, objective, pad):
+            objPos = findPosition(pad, objective)
+            
+            ret = ''
+
+            if position[1] > objPos[1]:
+                ret += '<' * (position[1] - objPos[1])
+            
+            if position[0] > objPos[0]:
+                ret += '^' * (position[0] - objPos[0])
+            if position[0] < objPos[0]:
+                ret += 'v' * (objPos[0] - position[0])
+
+            if position[1] < objPos[1]:
+                ret += '>' * (objPos[1] - position[1])
+
+            if not ok(pad, position, ret):
+                ret = ''
+                if position[1] < objPos[1]:
+                    ret += '>' * (objPos[1] - position[1])
+
+                if position[0] > objPos[0]:
+                    ret += '^' * (position[0] - objPos[0])
+                if position[0] < objPos[0]:
+                    ret += 'v' * (objPos[0] - position[0])
+                
+                if position[1] > objPos[1]:
+                    ret += '<' * (position[1] - objPos[1])
+
+            
+            return ret
+
+        @cache
+        def solve(code, robots, keyPad, robotPad, maxRobots):
+            if robots <= 0:
+                return len(code)
+
+            ret = 0
+
+            posi = 3
+            posj = 2
+
+            if robots != maxRobots:
+                posi = 0
+
+            totalMoves = ''
+            
+            for ch in code:
+                if robots == maxRobots:
+                    moves = generateMoves((posi, posj), ch, keyPad)
+                    posi, posj = findPosition(keyPad, ch)
+                else:
+                    moves = generateMoves((posi, posj), ch, robotPad)
+                    posi, posj = findPosition(robotPad, ch)
+                totalMoves += moves + 'A'
+                ret += solve(moves + 'A', robots - 1, keyPad, robotPad, maxRobots)
+            return ret
+
+        ret = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            maxRobots = 26
+
+            keyPad = ('789', '456', '123', ' 0A')
+            robotPad = (' ^A', '<v>')
+
+            for code in content.split('\n'):
+                numericPart = 0
+
+                for ch in code:
+                    if ch >= '0' and ch <= '9':
+                        numericPart = numericPart * 10 + int(ch)
+
+                sv = solve(code, maxRobots, keyPad, robotPad, maxRobots)
+                ret += sv * numericPart
+
+        return ret
+
 
 
 
@@ -2518,6 +2746,10 @@ class AdventOfCode:
         20: {
             1: __d20p1,
             2: __d20p2
+        },
+        21: {
+            1: __d21p1,
+            2: __d21p2
         }
     }
 
@@ -2532,4 +2764,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(20, 2, "Inputs/Day20/p20.txt")
+AdventOfCode.Solve(21, 2, "Inputs/Day21/p21.txt")
