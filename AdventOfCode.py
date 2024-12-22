@@ -2664,6 +2664,105 @@ class AdventOfCode:
 
 
 
+    @staticmethod
+    def __d22p1(fileName):
+        """
+        Read the file and return the result to the first part of the twenty-second day's problem
+        """
+
+        def mix(a, b):
+            return a ^ b
+
+        def prune(a):
+            return a % 16777216
+
+        sum = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            iters = 2000
+
+            for line in content.split('\n'):
+                num = int(line)
+
+                for i in range(iters):
+                    num = mix(num, num * 64)
+                    num = prune(num)
+
+                    num = mix(num, num // 32)
+                    num = prune(num)
+
+                    num = mix(num, num * 2048)
+                    num = prune(num)
+                
+                sum += num
+        
+        return sum
+    
+
+
+
+
+    @staticmethod
+    def __d22p2(fileName):
+        """
+        Read the file and return the result to the second part of the twenty-second day's problem
+        """
+
+        def mix(a, b):
+            return a ^ b
+
+        def prune(a):
+            return a % 16777216
+
+        ret = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            iters = 2000
+
+            totalBananas = {}
+
+            for line in content.split('\n'):
+                num = int(line)
+
+                localBananas = {}
+                lastDiff = (10, 10, 10, 10)
+
+                for i in range(iters):
+                    prev = num % 10
+                    num = mix(num, num * 64)
+                    num = prune(num)
+
+                    num = mix(num, num // 32)
+                    num = prune(num)
+
+                    num = mix(num, num * 2048)
+                    num = prune(num)
+
+                    pri = num % 10
+
+                    lastDiff = lastDiff[1:] + (pri - prev,)
+
+                    if lastDiff not in localBananas:
+                        localBananas[lastDiff] = pri
+                
+                for diff in localBananas:
+                    if diff not in totalBananas:
+                        totalBananas[diff] = 0
+                    totalBananas[diff] += localBananas[diff]
+                
+            for diff in totalBananas:
+                if totalBananas[diff] > ret:
+                    ret = totalBananas[diff]
+        
+        return ret
+
+
+
+
 
     # Table of functions for each day and part
     __table = {
@@ -2750,6 +2849,10 @@ class AdventOfCode:
         21: {
             1: __d21p1,
             2: __d21p2
+        },
+        22: {
+            1: __d22p1,
+            2: __d22p2
         }
     }
 
@@ -2764,4 +2867,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(21, 2, "Inputs/Day21/p21.txt")
+AdventOfCode.Solve(22, 2, "Inputs/Day22/p22.txt")
