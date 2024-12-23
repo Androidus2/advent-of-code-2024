@@ -2763,6 +2763,129 @@ class AdventOfCode:
 
 
 
+    @staticmethod
+    def __d23p1(fileName):
+        """
+        Read the file and return the result to the first part of the twenty-third day's problem
+        """
+
+        def solve(dep, maxDep, connections, curCom, computers, solutions):
+            if dep == maxDep:
+                tmp = curCom.copy()
+                tmp.sort()
+                solutions.add(tuple(tmp))
+                return
+            #print(dep, curCom)
+
+            for i, com in enumerate(computers):
+                ok = True
+
+                for c in curCom:
+                    if (com, c) not in connections:
+                        #print(com, c, i)
+                        ok = False
+                        break
+                        
+                if ok:
+                    curCom.append(com)
+                    solve(dep + 1, maxDep, connections, curCom, computers, solutions)
+                    curCom.pop()
+            
+
+
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            connections = []
+            computers = []
+
+            for line in content.split('\n'):
+                c1, c2 = line.split('-')
+
+                connections.append((c1, c2))
+                connections.append((c2, c1))
+                
+                if c1 not in computers:
+                    computers.append(c1)
+                if c2 not in computers:
+                    computers.append(c2)
+            
+            #print(computers)
+
+            frcmp = list(computers)
+            frcon = list(connections)
+
+            solutions = set()
+
+            #print(frcmp)
+            #print(frcon)
+            
+            for i, c in enumerate(frcmp):
+                if c[0] == 't':
+                    #print('STARTING WITH ', c)
+                    solve(1, 3, frcon, [c], frcmp, solutions)
+            
+            cnt = len(solutions)
+            #print(solutions)
+        
+        return cnt
+    
+
+
+    @staticmethod
+    def __d23p2(fileName):
+        """
+        Read the file and return the result to the second part of the twenty-third day's problem
+        """
+        
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            connections = set()
+            computers = set()
+
+            for line in content.split('\n'):
+                c1, c2 = line.split('-')
+                
+                connections.add((c1, c2))
+                connections.add((c2, c1))
+
+                computers.add(c1)
+                computers.add(c2)
+            
+            nets = []
+
+            for c in computers:
+                nets.append(set([c]))
+            
+            for net in nets:
+                for com in computers:
+                    ok = True
+                    for c in net:
+                        if (com, c) not in connections:
+                            ok = False
+                            break
+                    
+                    if ok:
+                        net.add(com)
+            
+            maxx = 0
+            maxNet = 0
+
+            for net in nets:
+                if len(net) > maxx:
+                    maxx = len(net)
+                    maxNet = net
+            
+            maxNet = list(maxNet)
+            maxNet.sort()
+            
+        return ','.join(maxNet)
+
+
+
 
     # Table of functions for each day and part
     __table = {
@@ -2853,6 +2976,10 @@ class AdventOfCode:
         22: {
             1: __d22p1,
             2: __d22p2
+        },
+        23: {
+            1: __d23p1,
+            2: __d23p2
         }
     }
 
@@ -2867,4 +2994,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(22, 2, "Inputs/Day22/p22.txt")
+AdventOfCode.Solve(23, 2, "Inputs/Day23/p23.txt")
