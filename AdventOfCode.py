@@ -2887,6 +2887,128 @@ class AdventOfCode:
 
 
 
+    @staticmethod
+    def __d24p1(fileName):
+        """
+        Read the file and return the result to the first part of the twenty-fourth day's problem
+        """
+
+        ret = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            mode = 0
+
+            solved = {}
+
+            from collections import deque
+
+            unsolved = deque()
+
+            for line in content.split('\n'):
+                if line == '':
+                    mode = 1
+                    continue
+
+                if mode == 0:
+                    name, val = line.split(': ')
+                    val = int(val)
+                    solved[name] = val
+                else:
+                    name1, op, name2, _, res = line.split()
+                    unsolved.append((name1, name2, op, res))
+            
+            #print(solved)
+            #print(unsolved)
+            
+            while len(unsolved) > 0:
+                fr = unsolved.popleft()
+
+                if fr[0] in solved and fr[1] in solved:
+                    res = 0
+                    if fr[2] == 'AND':
+                        res = solved[fr[0]] & solved[fr[1]]
+                    elif fr[2] == 'OR':
+                        res = solved[fr[0]] | solved[fr[1]]
+                    else:
+                        res = solved[fr[0]] ^ solved[fr[1]]
+                    solved[fr[3]] = res
+                else:
+                    unsolved.append(fr)
+            
+            #print(solved)
+
+            for name in solved:
+                if name.startswith('z'):
+                    zInd = int(name[1:])
+                    ret += solved[name] << zInd
+        
+        return ret
+    
+
+
+
+    @staticmethod
+    def __d24p2(fileName):
+        """
+        Read the file and return the result to the second part of the twenty-fourth day's problem
+        """
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            mode = 0
+            errors = set()
+
+            wires = []
+
+            for line in content.split('\n'):
+                if line == '':
+                    mode = 1
+                    continue
+
+                if mode == 1:
+                    name1, op, name2, _, res = line.split()
+                    
+                    if res.startswith('z') and res != 'z45' and op != 'XOR':
+                        errors.add(res)
+                    elif not res.startswith('z') and op == 'XOR' and not name1.startswith('x') and not name2.startswith('y') and not name2.startswith('x') and not name1.startswith('y'):
+                        errors.add(res)
+                    
+                    wires.append((name1, name2, op, res))
+
+            for wire in wires:
+                if wire[0] == 'x00' or wire[1] == 'x00':
+                    continue
+                if wire[2] == 'XOR' and ((wire[0].startswith('x') and wire[1].startswith('y')) or (wire[0].startswith('y') and wire[1].startswith('x'))):
+                    ok = False
+                    for w in wires:
+                        if (w[1] == wire[3] or w[0] == wire[3]) and w[2] == 'XOR':
+                            ok = True
+                            break
+                    if not ok:
+                        errors.add(wire[3])
+                if wire[2] == 'AND':
+                    ok = False
+                    for w in wires:
+                        if (w[1] == wire[3] or w[0] == wire[3]) and w[2] == 'OR':
+                            ok = True
+                            break
+                    if not ok:
+                        errors.add(wire[3])
+            
+
+            errList = list(errors)
+            errList.sort()
+        
+        return ','.join(errList)
+
+
+
+
+
+
     # Table of functions for each day and part
     __table = {
         1: {
@@ -2980,6 +3102,10 @@ class AdventOfCode:
         23: {
             1: __d23p1,
             2: __d23p2
+        },
+        24: {
+            1: __d24p1,
+            2: __d24p2
         }
     }
 
@@ -2994,4 +3120,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(23, 2, "Inputs/Day23/p23.txt")
+AdventOfCode.Solve(24, 2, "Inputs/Day24/p24.txt")
