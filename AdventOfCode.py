@@ -3007,6 +3007,69 @@ class AdventOfCode:
 
 
 
+    @staticmethod
+    def __d25p1(fileName):
+        """
+        Read the file and return the result to the first part of the twenty-fifth day's problem
+        """
+
+        cnt = 0
+
+        with open(fileName, 'r') as file:
+            content = file.read()
+
+            locks = []
+            keys = []
+
+            readingNext = True
+            isLock = False
+
+            height = 0
+            readingHeight = True
+
+            for line in content.split('\n'):
+                #print(line)
+                if line == '':
+                    readingNext = True
+                    if readingHeight:
+                        readingHeight = False
+                    continue
+                    
+                if readingNext:
+                    readingNext = False
+                    if line == '.' * len(line):
+                        isLock = False
+                        keys.append([0] * len(line))
+                    else:
+                        isLock = True
+                        locks.append([0] * len(line))
+                
+                if readingHeight:
+                    height += 1
+
+                if isLock:
+                    for i, ch in enumerate(line):
+                        if ch == '#':
+                            locks[-1][i] += 1
+                else:
+                    for i, ch in enumerate(line):
+                        if ch == '#':
+                            keys[-1][i] += 1
+
+            for lc in locks:
+                for k in keys:
+                    ok = True
+                    for i in range(len(locks[0])):
+                        if lc[i] + k[i] > height:
+                            ok = False
+                            break
+                    
+                    if ok:
+                        cnt += 1
+        
+        return cnt
+
+
 
 
     # Table of functions for each day and part
@@ -3106,6 +3169,9 @@ class AdventOfCode:
         24: {
             1: __d24p1,
             2: __d24p2
+        },
+        25: {
+            1: __d25p1
         }
     }
 
@@ -3120,4 +3186,4 @@ class AdventOfCode:
             print("Day or part not found")
 
 # Usage
-AdventOfCode.Solve(24, 2, "Inputs/Day24/p24.txt")
+AdventOfCode.Solve(25, 1, "Inputs/Day25/p25.txt")
